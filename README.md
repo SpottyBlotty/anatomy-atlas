@@ -1,0 +1,14 @@
+# Атлас анатомии
+
+Интерактивный атлас на русском языке: скелет и дыхательная система, 39 карточек с 3D-моделями. Один файл `index.html`, сборка не нужна.
+
+## Источники
+
+- Тексты: StatPearls (NCBI Bookshelf), MedlinePlus, PubMed. Ссылка на источник есть в каждой карточке.
+- 3D-модели: [BodyParts3D](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/desc.html), © The Database Center for Life Science. В файлах моделей указана лицензия CC Attribution-Share Alike 2.1 Japan; на сайте базы с 25.02.2025 лицензия описана как CC Attribution 4.0 International. Модели упрощены (число полигонов сокращено на 99%), ориентация и цвета изменены. Из-за условия Share-Alike сайт распространяется на тех же условиях (CC BY-SA).
+
+Атлас учебный и не заменяет консультацию врача.
+
+## Запуск
+
+Откройте `index.html` в браузере (нужен интернет для библиотек three.js и pako с cdnjs).
