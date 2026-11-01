@@ -6,6 +6,8 @@
 
 - Тексты: StatPearls (NCBI Bookshelf), MedlinePlus, PubMed. Ссылка на источник есть в каждой карточке.
 - 3D-модели: [BodyParts3D](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/desc.html), © The Database Center for Life Science. В файлах моделей указана лицензия CC Attribution-Share Alike 2.1 Japan; на сайте базы с 25.02.2025 лицензия описана как CC Attribution 4.0 International. Модели упрощены (число полигонов сокращено на 99%), ориентация и цвета изменены. Из-за условия Share-Alike сайт распространяется на тех же условиях (CC BY-SA).
+- 3D мышц головы и шеи: полный набор BodyParts3D, версия 3.0 (кости и мышцы одной версии), сетка упрощена; из той же базы сделаны подписанные виды.
+- Рисунки мышц: Atlas of Human Anatomy (R. A. Bergman, A. K. Afifi), anatomyatlases.org, CC BY-NC-SA 4.0; подключены ссылкой, русская легенда переведена.
 
 Положение околоносовых пазух на 3D-модели и схема родничков нарисованы по описаниям в источниках, форма и размеры условные.
 
