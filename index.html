@@ -381,6 +381,44 @@ footer.note { border: 0; text-align: center; max-width: none; margin-top: 56px; 
 @media (max-width: 600px) { .vbar { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -2px; padding: 2px; }
   .vbar::-webkit-scrollbar { display: none; } .vbar button { flex: none; hyphens: none; white-space: nowrap; padding: 8px 16px; }
   .mwrap.full .vbar { display: flex; } }
+
+/* ===== Проверь себя ===== */
+.quizlink { display: block; margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; background: var(--accent); color: var(--on-accent); text-decoration: none; }
+.quizlink b { display: block; font-size: 16px; }
+.quizlink span { font-size: 13px; opacity: .9; }
+.quizlink[aria-current="page"] { outline: 2px solid var(--ink); }
+.quizhero { display: block; margin: 8px 0 8px; padding: 18px 20px; border-radius: var(--r, 16px); background: var(--accent); color: var(--on-accent); text-decoration: none; box-shadow: var(--shadow); }
+.quizhero b { display: block; font-size: 20px; font-family: var(--font-display); }
+.quizhero span { opacity: .92; }
+.quiz { max-width: 760px; }
+.qlead { color: var(--muted); }
+.qscale { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 12px 0 18px; }
+.qscale li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; }
+.qbtn { display: inline-block; font: inherit; font-weight: 600; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 11px 22px; min-height: 46px; cursor: pointer; }
+.qbtn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.qtop { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+.qbar { height: 6px; border-radius: 3px; background: var(--surface-2); margin-bottom: 16px; overflow: hidden; }
+.qbar i { display: block; height: 100%; background: var(--accent); }
+.qimg { border-radius: var(--r, 16px); border: 1px solid var(--line); background: radial-gradient(ellipse at 50% 35%, var(--stage1), var(--stage2)); overflow: hidden; text-align: center; margin-bottom: 14px; }
+.qimg img { display: block; max-width: 100%; max-height: 380px; margin: 0 auto; background: #fff0; }
+.qq { font-family: var(--font-display); font-size: 22px; line-height: 1.3; margin: 8px 0 12px; }
+.qopts { display: grid; gap: 10px; }
+.qopt { text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 16px; min-height: 50px; cursor: pointer; }
+.qopt:hover:not(:disabled) { border-color: var(--accent); }
+.qopt:disabled { cursor: default; }
+.qopt.right { border-color: #2a9d5c; background: color-mix(in srgb, #2a9d5c 18%, var(--surface)); }
+.qopt.wrong { border-color: #d7263d; background: color-mix(in srgb, #d7263d 16%, var(--surface)); }
+.qfb { margin-top: 14px; padding: 14px 16px; border-radius: 12px; border-left: 5px solid var(--line); background: var(--surface-2); }
+.qfb.ok { border-left-color: #2a9d5c; } .qfb.bad { border-left-color: #d7263d; }
+.qfb div { margin-top: 12px; }
+.qres { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin: 12px 0 18px; }
+.qgrade { width: 132px; height: 132px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; line-height: 1.1; }
+.qgrade b { font-size: 54px; font-family: var(--font-display); } .qgrade span { font-size: 13px; padding: 0 8px; }
+.qgrade.g5 { background: #2a9d5c; } .qgrade.g4 { background: #4f8fd1; } .qgrade.g3 { background: #d9962a; } .qgrade.g2 { background: #d7263d; }
+.qscore { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.qwrong { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 10px; }
+.qwrong li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.qx { color: #d7263d; } .qv { color: #2a9d5c; font-weight: 600; }
 </style>
 
 <div class="wrap">
@@ -1083,7 +1121,7 @@ document.addEventListener("keydown", function (e) {
   else if (drawer.classList.contains("open")) { setNav(false); toggle.focus(); }
 });
 
-var BUILD = "584f9b6751", LANG = "ru", I18N = {}, AVAIL = JSON.parse(document.getElementById("d-langs").textContent);
+var BUILD = "3958d71d6a", LANG = "ru", I18N = {}, AVAIL = JSON.parse(document.getElementById("d-langs").textContent);
 var langP = {};
 function loadLangData(l) {
   if (l === "ru") return Promise.resolve();
@@ -1172,6 +1210,7 @@ function buildTree(filter) {
     }
     html += '</details>';
   }
+  html = '<a class="quizlink" href="#quiz" data-id="quiz"><b>' + esc(T("Проверь себя")) + '</b><span>' + esc(T("Тест по карточкам с оценкой")) + '</span></a>' + html;
   if (!total) html = '<p class="nores">' + esc(T("Ничего не найдено. Попробуйте другое слово.")) + '</p>';
   tree.innerHTML = html;
   markActive();
@@ -1195,6 +1234,7 @@ function renderHome() {
   var qk = ["skull", "teeth", "hand-bones", "facial-muscles", "lungs", "larynx"];
   for (var qi = 0; qi < qk.length; qi++) { var qx = byId(qk[qi]); if (qx >= 0) h += '<a href="#' + qk[qi] + '">' + esc(T(DATA[qx].title)) + '</a>'; }
   h += '</div></section>';
+  h += '<a class="quizhero" href="#quiz"><b>' + esc(T("Проверь себя")) + '</b><span>' + esc(T("Мини-тест по карточкам атласа: вопросы по 3D-моделям и рисункам, в конце результат и оценка.")) + '</span></a>';
   for (var s = 0; s < SYSTEMS.length; s++) {
     var sys = SYSTEMS[s];
     h += '<div class="sys"><h2>' + esc(T(sys.name)) + '</h2><div class="cards">';
@@ -1264,6 +1304,179 @@ main.addEventListener("click", function (e) {
   window.__totop = up;
   window.addEventListener("scroll", function () { up.hidden = window.scrollY < 700; }, { passive: true });
 })();
+var _QI_f_alv = "data/img/99593670866d.jpg";
+var _QI_f_bone = "data/img/156ec98ef9e8.jpg";
+var _QI_f_epi = "data/img/45675131136a.jpg";
+var _QI_f_gl = "data/img/02e605248717.jpg";
+var _QI_f_hair = "data/img/05be1aaf6de0.jpg";
+var _QI_f_skin = "data/img/5f6e88498395.jpg";
+var _QI_f_syn = "data/img/ed9ee3e27cec.jpg";
+var _QI_hd_capitate = "data/img/172eb6faa466.jpg";
+var _QI_hd_pisiform = "data/img/dfa5238fad5f.jpg";
+var _QI_hd_scaphoid = "data/img/de3ed31dc089.jpg";
+var _QI_ht_lv = "data/img/1647e47fef5f.jpg";
+var _QI_ht_pt = "data/img/90b5c89226e8.jpg";
+var _QI_ht_ra = "data/img/6d5b00147661.jpg";
+var _QI_ht_svc = "data/img/d9ca05f0176a.jpg";
+var _QI_pv_sacrum = "data/img/9eaf683159c8.jpg";
+var _QI_sk_frontal = "data/img/eb9d79ead834.jpg";
+var _QI_sk_mandible = "data/img/118a47c58981.jpg";
+var _QI_sk_occipital = "data/img/947b5837bc0a.jpg";
+var _QI_sk_sphenoid = "data/img/d9f44a844984.jpg";
+var _QI_th_skull = "data/img/2edb385b39a2.jpg";
+var _QI_th_spine = "data/img/f7d0920f10e4.jpg";
+var QUIZ = [
+  {c: "skull", i: _QI_sk_frontal, q: "Какая кость черепа выделена цветом?", o: ["Лобная кость", "Затылочная кость", "Клиновидная кость", "Решётчатая кость"], a: 0, w: "Лобная кость входит в свод мозгового отдела черепа.", h: 1},
+  {c: "skull", i: _QI_sk_occipital, q: "Какая кость черепа выделена цветом (вид сзади)?", o: ["Теменная кость", "Затылочная кость", "Височная кость", "Лобная кость"], a: 1, w: "Затылочная кость входит в свод мозгового отдела черепа.", h: 1},
+  {c: "skull", i: _QI_sk_mandible, q: "Какая кость выделена цветом (вид сбоку)?", o: ["Верхняя челюсть", "Скуловая кость", "Нижняя челюсть", "Сошник"], a: 2, w: "Нижняя челюсть входит в 14 костей лицевого отдела черепа.", h: 1},
+  {c: "skull", i: _QI_sk_sphenoid, q: "Какая кость выделена цветом в глубине черепа?", o: ["Клиновидная кость", "Решётчатая кость", "Нёбная кость", "Слёзная кость"], a: 0, w: "Клиновидная кость входит в основание мозгового отдела черепа.", h: 1},
+  {c: "hand-bones", i: _QI_hd_scaphoid, q: "Какая кость запястья выделена цветом?", o: ["Головчатая кость", "Ладьевидная кость", "Полулунная кость", "Крючковидная кость"], a: 1, w: "Эта кость запястья называется ладьевидной (os scaphoideum).", h: 1},
+  {c: "hand-bones", i: _QI_hd_capitate, q: "Какая кость запястья выделена цветом?", o: ["Гороховидная кость", "Трёхгранная кость", "Головчатая кость", "Малая многоугольная кость"], a: 2, w: "Эта кость запястья называется головчатой (os capitatum).", h: 1},
+  {c: "hand-bones", i: _QI_hd_pisiform, q: "Какая кость запястья выделена цветом?", o: ["Гороховидная кость", "Крючковидная кость", "Ладьевидная кость", "Большая многоугольная кость"], a: 0, w: "Эта кость запястья называется гороховидной (os pisiforme).", h: 1},
+  {c: "heart", i: _QI_ht_lv, q: "Какая камера сердца выделена цветом?", o: ["Правое предсердие", "Левое предсердие", "Правый желудочек", "Левый желудочек"], a: 3, w: "Левый желудочек выбрасывает кровь через клапан аорты.", h: 1},
+  {c: "heart", i: _QI_ht_ra, q: "Какая камера сердца выделена цветом?", o: ["Правое предсердие", "Левый желудочек", "Левое предсердие", "Правый желудочек"], a: 0, w: "Правое предсердие получает венозную кровь от всего тела, кроме лёгких.", h: 1},
+  {c: "heart", i: _QI_ht_pt, q: "Какой сосуд выделен цветом?", o: ["Лёгочный ствол", "Восходящая аорта", "Верхняя полая вена", "Дуга аорты"], a: 0, w: "Из правого желудочка кровь направляется в лёгочную артерию.", h: 1},
+  {c: "heart", i: _QI_ht_svc, q: "Какой сосуд выделен цветом?", o: ["Восходящая аорта", "Лёгочный ствол", "Верхняя полая вена", "Правая лёгочная артерия"], a: 2, w: "Верхняя полая вена приносит венозную кровь в правое предсердие.", h: 1},
+  {c: "pelvis", i: _QI_pv_sacrum, q: "Какая кость таза выделена цветом?", o: ["Крестец", "Подвздошная кость", "Копчик", "Лобковая кость"], a: 0, w: "Эта кость называется крестцом (os sacrum).", h: 1},
+  {c: "skull", i: _QI_th_skull, q: "Сколько костей в черепе у большинства взрослых?", o: ["20", "22", "26", "28"], a: 1, w: "У большинства взрослых в черепе 22 кости.", h: 0},
+  {c: "skull", i: _QI_th_skull, q: "Сколько костей образуют лицевой отдел черепа?", o: ["8", "10", "14", "22"], a: 2, w: "Лицевой отдел состоит из 14 костей.", h: 0},
+  {c: "sutures", i: null, q: "Какой шов проходит между двумя теменными костями?", o: ["Венечный", "Лямбдовидный", "Чешуйчатый", "Сагиттальный"], a: 3, w: "Сагиттальный шов — между двумя теменными костями.", h: 0},
+  {c: "sutures", i: null, q: "Между какими костями проходит венечный шов?", o: ["Лобной и двумя теменными", "Теменной и затылочной", "Теменной и височной", "Двумя теменными"], a: 0, w: "Венечный шов — между лобной и двумя теменными костями.", h: 0},
+  {c: "sutures", i: null, q: "Что проходит под птерионом (стык лобной, теменной, височной и клиновидной костей)?", o: ["Верхняя полая вена", "Средняя менингеальная артерия", "Лицевой нерв", "Сонная артерия"], a: 1, w: "Под птерионом проходит средняя менингеальная артерия.", h: 0},
+  {c: "spine", i: _QI_th_spine, q: "Сколько всего позвонков в позвоночнике?", o: ["24", "29", "33", "37"], a: 2, w: "7 шейных, 12 грудных, 5 поясничных, 5 крестцовых и 4 копчиковых — всего 33.", h: 0},
+  {c: "spine", i: _QI_th_spine, q: "Сколько в позвоночнике грудных позвонков?", o: ["7", "12", "5", "4"], a: 1, w: "Грудных позвонков 12.", h: 0},
+  {c: "spine", i: _QI_th_spine, q: "Какие изгибы есть у позвоночника взрослого?", o: ["Шейный лордоз, грудной кифоз, поясничный лордоз", "Шейный кифоз, грудной лордоз, поясничный кифоз", "Только грудной кифоз", "Только поясничный лордоз"], a: 0, w: "У взрослого небольшой шейный лордоз, грудной кифоз и поясничный лордоз.", h: 0},
+  {c: "bone-cells", i: _QI_f_bone, q: "Какие клетки строят кость?", o: ["Остеобласты", "Остеокласты", "Остеоциты", "Хондроциты"], a: 0, w: "Остеобласты строят кость: выделяют остеоид — жидкость, богатую коллагеном.", h: 0},
+  {c: "bone-cells", i: _QI_f_bone, q: "Многоядерные клетки, которые рассасывают кость, — это:", o: ["Остеобласты", "Остеоциты", "Остеокласты", "Фибробласты"], a: 2, w: "Остеокласты — многоядерные клетки, рассасывающие кость; лежат в лакунах Гаушипа.", h: 0},
+  {c: "bone-cells", i: _QI_f_bone, q: "Где лежат остеоциты?", o: ["В лакунах остеонов", "На поверхности костного мозга", "В синовиальной жидкости", "В надкостнице"], a: 0, w: "Остеоциты — зрелые клетки кости, лежат в лакунах остеонов.", h: 0},
+  {c: "synovial", i: _QI_f_syn, q: "Что покрывает суставные поверхности костей в синовиальном суставе?", o: ["Фиброзная капсула", "Гиалиновый хрящ", "Синовиальная оболочка", "Надкостница"], a: 1, w: "Суставные поверхности покрыты гиалиновым хрящом.", h: 0},
+  {c: "synovial", i: _QI_f_syn, q: "Какая структура вырабатывает синовиальную жидкость?", o: ["Суставной хрящ", "Мениск", "Синовиальная оболочка (синовиум)", "Сухожилие"], a: 2, w: "Жидкость вырабатывает синовиальная оболочка, выстилающая капсулу.", h: 0},
+  {c: "synovial", i: null, q: "Какого типа тазобедренный и плечевой суставы?", o: ["Блоковидные", "Плоские", "Седловидные", "Шаровидные"], a: 3, w: "Шаровидные суставы имеют много осей, включая вращение: тазобедренный и плечевой.", h: 0},
+  {c: "synovial", i: null, q: "Какой сустав относится к блоковидным (одна ось, сгибание и разгибание)?", o: ["Плечевой", "Локтевой", "Атлантоосевой", "Акромиально-ключичный"], a: 1, w: "Блоковидные суставы: локоть, колено, голеностоп, межфаланговые.", h: 0},
+  {c: "heart", i: null, q: "Через какой клапан кровь переходит из правого предсердия в правый желудочек?", o: ["Митральный", "Трёхстворчатый", "Клапан аорты", "Клапан лёгочного ствола"], a: 1, w: "Кровь идёт через трёхстворчатый клапан.", h: 0},
+  {c: "heart", i: null, q: "Сколько лёгочных вен впадает в левое предсердие?", o: ["Две", "Три", "Четыре", "Шесть"], a: 2, w: "Четыре лёгочные вены (по две от каждого лёгкого).", h: 0},
+  {c: "heart", i: null, q: "Через какой клапан кровь поступает из левого предсердия в левый желудочек?", o: ["Трёхстворчатый", "Митральный", "Клапан лёгочного ствола", "Клапан аорты"], a: 1, w: "Из левого предсердия кровь идёт через митральный клапан.", h: 0},
+  {c: "pericardium", i: null, q: "Из каких слоёв состоит перикард?", o: ["Из фиброзного и серозного", "Только из серозного", "Из эпикарда и миокарда", "Из эндокарда и миокарда"], a: 0, w: "Перикард состоит из фиброзного и серозного слоёв.", h: 0},
+  {c: "pericardium", i: null, q: "Как называется висцеральная пластинка серозного перикарда на сердце?", o: ["Миокард", "Эндокард", "Эпикард", "Париетальная пластинка"], a: 2, w: "Висцеральная пластинка на сердце — эпикард.", h: 0},
+  {c: "parathyroid", i: null, q: "Сколько околощитовидных желёз обычно бывает?", o: ["Две", "Четыре", "Шесть", "Восемь"], a: 1, w: "Как правило, четыре: две верхние и две нижние.", h: 0},
+  {c: "alveoli", i: _QI_f_alv, q: "Каков диаметр альвеолы?", o: ["около 20 мкм", "около 200 мкм", "около 2 мм", "около 2 см"], a: 1, w: "Диаметр альвеолы около 200 мкм.", h: 0},
+  {c: "alveoli", i: _QI_f_alv, q: "Сколько примерно альвеол в лёгких?", o: ["3 миллиона", "30 миллионов", "300 миллионов", "3 миллиарда"], a: 2, w: "В лёгких около 300 миллионов альвеол.", h: 0},
+  {c: "alveoli", i: _QI_f_alv, q: "Какие клетки составляют 90–95% альвеолярного эпителия?", o: ["Пневмоциты II типа", "Пневмоциты I типа", "Альвеолярные макрофаги", "Эндотелиальные клетки"], a: 1, w: "Пневмоциты I типа — плоские клетки, образующие диффузионный барьер.", h: 0},
+  {c: "alveoli", i: _QI_f_alv, q: "Какие клетки выделяют сурфактант?", o: ["Пневмоциты I типа", "Альвеолярные макрофаги", "Пневмоциты II типа", "Тучные клетки"], a: 2, w: "Сурфактант выделяют пневмоциты II типа.", h: 0},
+  {c: "alveoli", i: _QI_f_alv, q: "Для чего нужны поры Кона?", o: ["Для газообмена с кровью", "Для выравнивания давления и перехода воздуха между альвеолами", "Для выделения сурфактанта", "Для прикрепления альвеол к бронхам"], a: 1, w: "Поры Кона выравнивают давление и позволяют воздуху переходить между альвеолами.", h: 0},
+  {c: "alveoli", i: _QI_f_alv, q: "Какова толщина кровно-воздушного барьера?", o: ["0,1–1,5 мкм", "10–15 мкм", "25–50 мкм", "около 200 мкм"], a: 0, w: "Толщина барьера 0,1–1,5 мкм.", h: 0},
+  {c: "epidermis", i: _QI_f_epi, q: "Где находится блестящий слой эпидермиса?", o: ["Во всей коже", "Только в толстой коже ладоней, подошв и пальцев", "Только в коже лица", "Только в слизистых"], a: 1, w: "Блестящий слой есть только в толстой коже ладоней, подошв и пальцев.", h: 0},
+  {c: "epidermis", i: _QI_f_epi, q: "Какой слой эпидермиса есть только в толстой коже ладоней и подошв?", o: ["Зернистый", "Шиповатый", "Блестящий", "Базальный"], a: 2, w: "Блестящий слой (stratum lucidum) есть только в толстой коже.", h: 0},
+  {c: "epidermis", i: _QI_f_epi, q: "Какой слой эпидермиса самый глубокий?", o: ["Роговой", "Базальный", "Зернистый", "Шиповатый"], a: 1, w: "Базальный слой — самый глубокий; здесь образуются новые кератиноциты.", h: 0},
+  {c: "epidermis", i: _QI_f_epi, q: "Какие клетки вырабатывают пигмент меланин?", o: ["Кератиноциты", "Клетки Меркеля", "Меланоциты", "Клетки Лангерганса"], a: 2, w: "Меланоциты вырабатывают меланин.", h: 0},
+  {c: "epidermis", i: _QI_f_epi, q: "Какую роль играют клетки Лангерганса?", o: ["Осязание", "Выработка меланина", "Поглощают бактерии и повреждённые клетки (как макрофаги)", "Выработка кератина"], a: 2, w: "Дендритные клетки Лангерганса действуют как макрофаги.", h: 0},
+  {c: "skin-vessels-nerves", i: _QI_f_skin, q: "Какие рецепторы кожи реагируют на вибрацию?", o: ["Тельца Мейснера", "Тельца Фатера — Пачини", "Клетки Меркеля", "Свободные нервные окончания"], a: 1, w: "На вибрацию реагируют тельца Фатера — Пачини.", h: 0},
+  {c: "skin-vessels-nerves", i: _QI_f_skin, q: "Какие рецепторы реагируют на лёгкое прикосновение?", o: ["Тельца Мейснера", "Тельца Фатера — Пачини", "Потовые железы", "Сальные железы"], a: 0, w: "Тельца Мейснера реагируют на лёгкое прикосновение.", h: 0},
+  {c: "skin-vessels-nerves", i: _QI_f_skin, q: "Какая мышца делает «гусиную кожу»?", o: ["Мышца, поднимающая волос", "Лобная мышца", "Круговая мышца глаза", "Скелетная мышца гиподермы"], a: 0, w: "Мышца, поднимающая волос, сокращается по сигналам симпатической нервной системы.", h: 0},
+  {c: "skin", i: _QI_f_skin, q: "Какая форма витамина D3 синтезируется в коже под действием ультрафиолета?", o: ["Кальцитриол", "Кальцидиол", "Холекальциферол", "Эргокальциферол"], a: 2, w: "В коже синтезируется холекальциферол; активный кальцитриол образуется в почках.", h: 0},
+  {c: "hair-nails", i: _QI_f_hair, q: "Какая фаза роста волоса самая длинная?", o: ["Анаген", "Катаген", "Телоген", "Все одинаковы"], a: 0, w: "Анаген длится от 2 до 7 лет.", h: 0},
+  {c: "hair-nails", i: _QI_f_hair, q: "С какой скоростью растут волосы в фазе анагена?", o: ["0,3 мм в сутки", "3 мм в сутки", "3 см в сутки", "0,3 мм в неделю"], a: 0, w: "Около 0,3 мм в сутки.", h: 0},
+  {c: "hair-nails", i: _QI_f_hair, q: "Как называется полулунная область у основания ногтя?", o: ["Эпонихий", "Гипонихий", "Луночка", "Ногтевое ложе"], a: 2, w: "Луночка (lunula, «маленькая луна») — полулунная область у основания ногтя.", h: 0},
+  {c: "skin-glands", i: _QI_f_gl, q: "Что выделяют эккринные потовые железы?", o: ["Густой пот с запахом", "Гипотонический пот для терморегуляции", "Кожное сало", "Только соль"], a: 1, w: "Эккринные железы выделяют гипотонический пот для терморегуляции.", h: 0},
+  {c: "skin-glands", i: _QI_f_gl, q: "Что вырабатывают сальные железы?", o: ["Пот", "Кожное сало (себум)", "Дермцидин", "Сурфактант"], a: 1, w: "Сальные железы вырабатывают себум — смесь липидов.", h: 0}
+];
+/* ===== Проверь себя ===== */
+var QZ = null;
+var QZ_N = 12;
+function qzShuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function qzStart() {
+  var hi = [], rest = [];
+  for (var i = 0; i < QUIZ.length; i++) (QUIZ[i].h ? hi : rest).push(i);
+  qzShuffle(hi); qzShuffle(rest);
+  var pick = hi.slice(0, 4).concat(rest.slice(0, QZ_N - 4));
+  qzShuffle(pick);
+  QZ = { list: [], idx: 0, score: 0, answered: false, wrong: [] };
+  for (var k = 0; k < pick.length; k++) {
+    var q = QUIZ[pick[k]], ord = [];
+    for (var o = 0; o < q.o.length; o++) ord.push(o);
+    qzShuffle(ord);
+    QZ.list.push({ q: q, ord: ord });
+  }
+  qzRender();
+}
+function qzGrade(p) {
+  if (p >= 90) return ["5", "отлично", "Материал усвоен очень хорошо."];
+  if (p >= 75) return ["4", "хорошо", "Хороший результат: повторите карточки по ошибкам."];
+  if (p >= 50) return ["3", "удовлетворительно", "Неплохо, но стоит повторить карточки из списка ниже."];
+  return ["2", "нужно повторить", "Откройте карточки из списка ниже и пройдите тест ещё раз."];
+}
+function qzHome() {
+  var h = '<article class="quiz"><p class="crumb">' + esc(T("Проверь себя")) + '</p><h1 class="title">' + esc(T("Проверь себя")) + '</h1>';
+  if (LANG !== "ru") h += '<p class="notice">' + esc("Тест пока доступен только на русском языке.") + '</p>';
+  h += '<p class="qlead">В тесте ' + QZ_N + ' вопросов по карточкам атласа: часть вопросов по 3D-моделям (нужно назвать выделенную цветом часть), остальные — по тексту карточек и рисункам. Вопросы каждый раз выбираются случайно. В конце — результат и оценка по пятибалльной шкале.</p>';
+  h += '<ul class="qscale"><li><b>5</b> — от 90%</li><li><b>4</b> — от 75%</li><li><b>3</b> — от 50%</li><li><b>2</b> — меньше 50%</li></ul>';
+  h += '<button type="button" class="qbtn primary" data-qz="start">Начать тест</button>';
+  h += '<p class="vnote" style="margin-top:20px">Всего в базе ' + QUIZ.length + ' вопросов. Правильные ответы и пояснения взяты из текстов карточек атласа.</p></article>';
+  return h;
+}
+function qzRender() {
+  if (!QZ) { main.innerHTML = qzHome(); return; }
+  if (QZ.idx >= QZ.list.length) { qzResult(); return; }
+  var it = QZ.list[QZ.idx], q = it.q;
+  var h = '<article class="quiz"><div class="qtop"><span>Вопрос ' + (QZ.idx + 1) + ' из ' + QZ.list.length + '</span><span>Верно: ' + QZ.score + '</span></div>';
+  h += '<div class="qbar"><i style="width:' + Math.round(QZ.idx / QZ.list.length * 100) + '%"></i></div>';
+  if (q.i) h += '<div class="qimg"><img src="' + q.i + '" alt=""></div>';
+  h += '<h2 class="qq">' + esc(q.q) + '</h2><div class="qopts" role="group" aria-label="Варианты ответа">';
+  for (var k = 0; k < it.ord.length; k++) h += '<button type="button" class="qopt" data-qz="ans" data-k="' + k + '">' + esc(q.o[it.ord[k]]) + '</button>';
+  h += '</div><div id="qfb" class="qfb" hidden></div></article>';
+  main.innerHTML = h;
+  window.scrollTo({ top: 0 });
+}
+function qzAnswer(k) {
+  if (!QZ || QZ.answered) return;
+  var it = QZ.list[QZ.idx], q = it.q, chosen = it.ord[k];
+  QZ.answered = true;
+  var ok = chosen === q.a;
+  if (ok) QZ.score++; else QZ.wrong.push({ q: q, chosen: q.o[chosen] });
+  var btns = main.querySelectorAll(".qopt");
+  for (var b = 0; b < btns.length; b++) {
+    btns[b].disabled = true;
+    if (it.ord[b] === q.a) btns[b].classList.add("right");
+    else if (b === k) btns[b].classList.add("wrong");
+  }
+  var fb = document.getElementById("qfb");
+  var ci = byId(q.c);
+  fb.hidden = false;
+  fb.className = "qfb " + (ok ? "ok" : "bad");
+  fb.innerHTML = '<b>' + (ok ? "Верно." : "Неверно.") + '</b> ' + esc(q.w) + (ci >= 0 ? ' <a href="#' + q.c + '" target="_blank" rel="noopener">Карточка: ' + esc(T(DATA[ci].title)) + '</a>' : '') +
+    '<div><button type="button" class="qbtn primary" data-qz="next">' + (QZ.idx + 1 >= QZ.list.length ? "Показать результат" : "Дальше") + '</button></div>';
+  fb.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+function qzResult() {
+  var n = QZ.list.length, p = Math.round(QZ.score / n * 100), g = qzGrade(p);
+  var h = '<article class="quiz"><p class="crumb">' + esc(T("Проверь себя")) + '</p><h1 class="title">Результат</h1>';
+  h += '<div class="qres"><div class="qgrade g' + g[0] + '"><b>' + g[0] + '</b><span>' + g[1] + '</span></div><div><p class="qscore">' + QZ.score + ' из ' + n + ' правильных ответов (' + p + '%)</p><p>' + g[2] + '</p></div></div>';
+  if (QZ.wrong.length) {
+    h += '<h2 class="qq">Разберите ошибки</h2><ul class="qwrong">';
+    for (var i = 0; i < QZ.wrong.length; i++) {
+      var w = QZ.wrong[i], ci = byId(w.q.c);
+      h += '<li><b>' + esc(w.q.q) + '</b><br><span class="qx">Ваш ответ: ' + esc(w.chosen) + '</span><br><span class="qv">Верно: ' + esc(w.q.o[w.q.a]) + '</span><br>' + esc(w.q.w) + (ci >= 0 ? ' <a href="#' + w.q.c + '">Открыть карточку: ' + esc(T(DATA[ci].title)) + '</a>' : '') + '</li>';
+    }
+    h += '</ul>';
+  } else h += '<p class="notice">Ошибок нет.</p>';
+  h += '<p><button type="button" class="qbtn primary" data-qz="start">Пройти ещё раз</button> <a class="qbtn" href="#home">К карточкам</a></p></article>';
+  main.innerHTML = h;
+  window.scrollTo({ top: 0 });
+}
+function renderQuiz() {
+  QZ = null;
+  main.innerHTML = qzHome();
+  document.title = T("Проверь себя") + " — " + T("Атлас анатомии");
+}
+main.addEventListener("click", function (e) {
+  var t = e.target.closest ? e.target.closest("[data-qz]") : null;
+  if (!t) return;
+  var a = t.getAttribute("data-qz");
+  if (a === "start") qzStart();
+  else if (a === "ans") qzAnswer(+t.getAttribute("data-k"));
+  else if (a === "next") { QZ.idx++; QZ.answered = false; qzRender(); }
+});
+
 function renderAbout() {
   var h = '<article class="aboutpage"><h1 class="title">' + esc(T("О проекте, источниках и лицензиях")) + '</h1>';
   h += '<p class="vnote" style="font-size:15px">' + esc(T("Справочник для изучения анатомии: каждая структура описана по статьям StatPearls (NCBI, NIH) и MedlinePlus, без добавления сведений от себя. Сейчас в атласе три раздела: скелет, дыхательная система и мышцы головы и шеи. 3D-модели взяты из базы BodyParts3D: их можно вращать и приближать, а при наведении мыши или нажатии на часть показываются её название и латинский термин. Для тем, которых в базе нет (например, гортань и альвеолы), рядом с карточкой указано, чего именно в модели нет.")) + '</p><p>' + esc(T("Связки, мениски, периферические нервы, вены и мышцы тазового дна добавлены из проекта Z-Anatomy (авторы Gauthier Kervyn и Marcin Zielinski; z-anatomy.com), основанного на BodyParts3D (The Database Center for Life Science, CC BY-SA 2.1 Japan). Лицензия Z-Anatomy: CC BY-SA 4.0; эти модели распространяются на тех же условиях. Их положение подогнано под модель скелета атласа, поэтому возможны отклонения в несколько миллиметров.")) + '</p>';
@@ -1278,7 +1491,7 @@ var ABOUT_Z = "Связки, мениски, периферические нер
 function route() {
   var id = (location.hash || "").replace("#", "");
   var idx = byId(id);
-  if (id === "about") renderAbout(); else if (idx === -1) renderHome(); else renderItem(idx);
+  if (id === "quiz") renderQuiz(); else if (id === "about") renderAbout(); else if (idx === -1) renderHome(); else renderItem(idx);
   markActive();
   setNav(false);
   document.body.classList.remove("fsview");
@@ -1562,6 +1775,8 @@ function modelBlock(it) {
 }
 
 var manifest = null, manifestP = null, chunkCache = {}, meshCache = {}, V = null;
+window.__atlasV = function () { return V; };
+window.__partNames = function (p) { return partNames(p); };
 
 function loadManifest() {
   if (!manifestP) manifestP = Promise.resolve().then(function () { manifest = JSON.parse(document.getElementById("d-manifest").textContent); return manifest; });
