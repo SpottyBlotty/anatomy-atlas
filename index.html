@@ -9,9 +9,6 @@
 <script>try{var t=localStorage.getItem("atlasTheme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <title>Атлас анатомии</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap"></noscript>
 <style>
 /* Раскладка: слева дерево разделов с поиском, справа карточка структуры; на телефоне дерево раскрывается кнопкой */
 :root {
@@ -296,6 +293,94 @@ body.fsview { overflow: hidden; overscroll-behavior: none; }
   .mwrap.full .vbar { flex: 1 1 auto; }
   .mwrap.full .vlabel { flex: 1 1 40%; max-height: 54px; font-size: 13px; }
 }
+
+/* ===== Дизайн v2: тёплая «медицинская» палитра, 3D-сцена в центре, текст рядом ===== */
+:root {
+  --bg: #f7f4ef; --surface: #ffffff; --surface-2: #efe9e1; --ink: #1c1d22; --muted: #646872; --line: #e2dbd0;
+  --accent: #b3263e; --accent-soft: #f8e3e6; --on-accent: #ffffff;
+  --stage1: #fdfbf8; --stage2: #e9e1d6;
+  --shadow: 0 1px 2px rgba(40,30,20,.06), 0 8px 24px rgba(40,30,20,.06);
+  --r: 16px;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0e1015; --surface: #171a22; --surface-2: #1e222c; --ink: #ecebe8; --muted: #9a9ea9; --line: #2a2e3a;
+    --accent: #ff7d8f; --accent-soft: #3a1c24; --on-accent: #1a0a0e; --stage1: #232838; --stage2: #0d0f14; --shadow: 0 8px 30px rgba(0,0,0,.35); }
+}
+:root[data-theme="dark"] { --bg: #0e1015; --surface: #171a22; --surface-2: #1e222c; --ink: #ecebe8; --muted: #9a9ea9; --line: #2a2e3a;
+  --accent: #ff7d8f; --accent-soft: #3a1c24; --on-accent: #1a0a0e; --stage1: #232838; --stage2: #0d0f14; --shadow: 0 8px 30px rgba(0,0,0,.35); }
+body { font-size: 1rem; line-height: 1.65; padding-block: 0 48px; }
+.wrap { max-width: 1480px; }
+header.top { position: sticky; top: 0; z-index: 40; margin: 0 -16px 22px; padding: 12px 16px; border: 0; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px); }
+.brand { font-size: 24px; letter-spacing: -.01em; }
+.brand a::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-right: 10px; vertical-align: 1px; box-shadow: 0 0 0 4px var(--accent-soft); }
+.search input { border-radius: 999px; background: var(--surface); padding-inline: 18px; box-shadow: var(--shadow); border-color: transparent; }
+.search input:focus { border-color: var(--accent); outline: none; }
+.hbtn, .langsel { border-radius: 999px; background: var(--surface); }
+@media (min-width: 861px) { .layout { grid-template-columns: 280px minmax(0, 1fr); gap: 36px; } }
+nav.tree { top: 84px; max-height: calc(100vh - 100px); padding: 6px 8px 6px 0; scrollbar-width: thin; }
+nav.tree summary { font-family: var(--font-body); font-size: 15px; font-weight: 700; padding: 8px 10px; border-radius: 10px; }
+nav.tree summary:hover { background: var(--surface-2); }
+.grp { margin: 14px 10px 4px; letter-spacing: .1em; }
+nav.tree li a { border-radius: 10px; padding: 7px 12px; font-size: 14.5px; }
+nav.tree li a[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Карточка: сцена слева (закреплена), текст справа */
+.crumb { text-transform: uppercase; letter-spacing: .1em; font-size: 12px; font-weight: 600; color: var(--accent); }
+h1.title { font-size: clamp(30px, 4vw, 46px); letter-spacing: -.02em; }
+.en { margin-bottom: 20px; }
+.split { display: block; }
+@media (min-width: 1100px) {
+  .split { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+  .stagecol { position: sticky; top: 84px; max-height: calc(100vh - 100px); overflow-y: auto; scrollbar-width: none; }
+  .stagecol::-webkit-scrollbar { display: none; }
+  .vhost { height: clamp(380px, 68vh, 760px); }
+}
+.viewer { border-radius: var(--r); border: 1px solid var(--line); box-shadow: var(--shadow); background: radial-gradient(ellipse at 50% 35%, var(--stage1), var(--stage2)); }
+.vbar { gap: 6px; }
+.vbar button { border-radius: 999px; padding: 7px 16px; font-weight: 500; }
+.vbar button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.vtip { border-radius: 10px; }
+.fsov { background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+section.blk { max-width: none; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 22px 12px; margin-bottom: 14px; box-shadow: var(--shadow); }
+section.blk h2 { font-size: 12.5px; border: 0; padding: 0; margin-bottom: 10px; letter-spacing: .12em; }
+section.blk li::marker { color: var(--accent); }
+.toc { margin-top: 0; }
+.toc button { border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); }
+.toc button:hover { background: var(--accent-soft); border-color: var(--accent); }
+.src { max-width: none; border-top: 0; padding: 4px 4px 0; }
+.model, .figimg, .atlfig img { border-radius: var(--r); }
+.pager a { border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); border-color: transparent; padding: 14px 18px; }
+.pager a:hover { border-color: var(--accent); }
+/* Главная */
+.home h1 { font-size: clamp(34px, 5.4vw, 60px); letter-spacing: -.025em; margin-bottom: 18px; max-width: 16ch; }
+.howto h2, .sys h2 { font-family: var(--font-body); font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 12px; }
+.steps li { border-radius: var(--r); border-color: transparent; box-shadow: var(--shadow); }
+.steps .sn { background: var(--accent-soft); color: var(--accent); }
+.quick a { background: var(--surface); border: 1px solid var(--line); color: var(--ink); }
+.quick a:hover { outline: 0; border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.sys { margin-top: 34px; }
+.cards { grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); gap: 14px; }
+.cards a { position: relative; overflow: hidden; border-radius: var(--r); border-color: transparent; box-shadow: var(--shadow); padding: 18px 18px 16px 22px; transition: transform .15s, box-shadow .15s; }
+.cards a::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--accent); opacity: .85; }
+.cards a:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(40,30,20,.14); }
+.cards b { font-size: 17px; }
+.sys:nth-of-type(3n+2) .cards a::before { background: #2f7f86; }
+.sys:nth-of-type(3n) .cards a::before { background: #b8862b; }
+footer.note { border: 0; text-align: center; max-width: none; margin-top: 56px; }
+@media (max-width: 860px) {
+  header.top { margin: 0 -16px 14px; }
+  .brand { font-size: 19px; }
+  .brand a::before { width: 9px; height: 9px; margin-right: 7px; box-shadow: 0 0 0 3px var(--accent-soft); }
+  section.blk { padding: 16px 16px 8px; }
+  .viewer { border-radius: 14px; }
+  .drawer { border-radius: 0 20px 20px 0; }
+}
+@media (prefers-reduced-motion: reduce) { .cards a { transition: none; } }
+@media (max-width: 600px) { .vbar { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -2px; padding: 2px; }
+  .vbar::-webkit-scrollbar { display: none; } .vbar button { flex: none; hyphens: none; white-space: nowrap; padding: 8px 16px; }
+  .mwrap.full .vbar { display: flex; } }
 </style>
 
 <div class="wrap">
@@ -1104,7 +1189,6 @@ function renderHome() {
   var qk = ["skull", "teeth", "hand-bones", "facial-muscles", "lungs", "larynx"];
   for (var qi = 0; qi < qk.length; qi++) { var qx = byId(qk[qi]); if (qx >= 0) h += '<a href="#' + qk[qi] + '">' + esc(T(DATA[qx].title)) + '</a>'; }
   h += '</div></section>';
-  h += '<details class="about"><summary>' + esc(T("О проекте и источниках")) + '</summary><p>' + esc(T("Справочник для изучения анатомии: каждая структура описана по статьям StatPearls (NCBI, NIH) и MedlinePlus, без добавления сведений от себя. Сейчас в атласе три раздела: скелет, дыхательная система и мышцы головы и шеи. 3D-модели взяты из базы BodyParts3D: их можно вращать и приближать, а при наведении мыши или нажатии на часть показываются её название и латинский термин. Для тем, которых в базе нет (например, гортань и альвеолы), рядом с карточкой указано, чего именно в модели нет.")) + '</p><p>' + esc(T("Связки, мениски, периферические нервы, вены и мышцы тазового дна добавлены из проекта Z-Anatomy (авторы Gauthier Kervyn и Marcin Zielinski; z-anatomy.com), основанного на BodyParts3D (The Database Center for Life Science, CC BY-SA 2.1 Japan). Лицензия Z-Anatomy: CC BY-SA 4.0; эти модели распространяются на тех же условиях. Их положение подогнано под модель скелета атласа, поэтому возможны отклонения в несколько миллиметров.")) + '</p></details>';
   for (var s = 0; s < SYSTEMS.length; s++) {
     var sys = SYSTEMS[s];
     h += '<div class="sys"><h2>' + esc(T(sys.name)) + '</h2><div class="cards">';
@@ -1131,7 +1215,7 @@ function renderItem(idx) {
   h += '<h1 class="title">' + esc(T(it.title)) + '</h1>';
   if (LANG !== "en") h += '<p class="en">' + esc(it.en) + '</p>';
   if (!CORE[LANG] || (LANG !== "ru" && LANG !== "en" && it.blocks[0].li[0] && !(I18N[LANG] && I18N[LANG][it.blocks[0].li[0]]))) h += '<p class="notice">' + esc(T("Тексты этой карточки показаны на английском: на вашем языке пока переведены интерфейс, названия и подписи.")) + '</p>';
-  h += modelBlock(it) + figBlock(it.id) + atlBlock(it.id) + extBlock(it.id);
+  h += '<div class="split"><div class="stagecol">' + modelBlock(it) + figBlock(it.id) + atlBlock(it.id) + extBlock(it.id) + '</div><div class="textcol">';
   if (it.blocks.length > 2) {
     h += '<nav class="toc" aria-label="' + esc(T("Содержание")) + '"><span class="tl">' + esc(T("Содержание")) + ':</span>';
     for (var tb = 0; tb < it.blocks.length; tb++) h += '<button type="button" data-blk="b' + tb + '">' + esc(T(it.blocks[tb].h)) + '</button>';
@@ -1149,7 +1233,7 @@ function renderItem(idx) {
     var sr = SRC[it.src[s]];
     parts.push('<a href="' + sr[1] + '" target="_blank" rel="noopener">' + esc(sr[0]) + '</a>');
   }
-  h += parts.join("; ") + '</div>';
+  h += parts.join("; ") + '</div></div></div>';
   h += '<div class="pager">';
   if (idx > 0) h += '<a class="prev" href="#' + DATA[idx - 1].id + '"><small>' + esc(T("Назад")) + '</small>' + esc(T(DATA[idx - 1].title)) + '</a>';
   if (idx < DATA.length - 1) h += '<a class="next" href="#' + DATA[idx + 1].id + '"><small>' + esc(T("Дальше")) + '</small>' + esc(T(DATA[idx + 1].title)) + '</a>';
@@ -1176,6 +1260,7 @@ main.addEventListener("click", function (e) {
 })();
 function renderAbout() {
   var h = '<article class="aboutpage"><h1 class="title">' + esc(T("О проекте, источниках и лицензиях")) + '</h1>';
+  h += '<p class="vnote" style="font-size:15px">' + esc(T("Справочник для изучения анатомии: каждая структура описана по статьям StatPearls (NCBI, NIH) и MedlinePlus, без добавления сведений от себя. Сейчас в атласе три раздела: скелет, дыхательная система и мышцы головы и шеи. 3D-модели взяты из базы BodyParts3D: их можно вращать и приближать, а при наведении мыши или нажатии на часть показываются её название и латинский термин. Для тем, которых в базе нет (например, гортань и альвеолы), рядом с карточкой указано, чего именно в модели нет.")) + '</p><p>' + esc(T("Связки, мениски, периферические нервы, вены и мышцы тазового дна добавлены из проекта Z-Anatomy (авторы Gauthier Kervyn и Marcin Zielinski; z-anatomy.com), основанного на BodyParts3D (The Database Center for Life Science, CC BY-SA 2.1 Japan). Лицензия Z-Anatomy: CC BY-SA 4.0; эти модели распространяются на тех же условиях. Их положение подогнано под модель скелета атласа, поэтому возможны отклонения в несколько миллиметров.")) + '</p>';
   for (var i = 0; i < FOOT.length; i++) h += '<p class="vnote" style="font-size:15px">' + esc(T(FOOT[i])) + '</p>';
   h += '<p class="vnote" style="font-size:15px">' + esc(T(ABOUT_Z)) + '</p>';
   h += '<p><a href="#home">' + esc(T("На главную")) + '</a></p></article>';
