@@ -1608,7 +1608,7 @@ function createViewer() {
 }
 function recolor() {
   if (!V) return;
-  V.matHi.color.set(cssVar("--accent") || "#0a6c68");
+  V.matHi.color.set("#5aa9c9");
   V.matGhost.color.set(cssVar("--muted") || "#889999");
   requestRender();
 }
@@ -1869,7 +1869,13 @@ function materialFor(spec, p, ctxNames) {
       }
     }
   }
-  return V.matHi;
+  /* Остальные части: каждая своим приятным цветом (по названию), без красного акцента сайта */
+  var hs = 0, nm = p.name || "";
+  for (var hc = 0; hc < nm.length; hc++) hs = (hs * 31 + nm.charCodeAt(hc)) >>> 0;
+  var PAL = [0x5aa9c9, 0xe0a458, 0x7fb88a, 0xb48ad0, 0xe58f8f, 0x6fc0b4, 0xd9c35e, 0x8c9fe0, 0xe39ac0, 0x9ccf6a];
+  var pk = "pal" + (hs % PAL.length);
+  if (!V.colorMats[pk]) V.colorMats[pk] = new THREE.MeshPhongMaterial({ color: PAL[hs % PAL.length], shininess: 25, side: THREE.DoubleSide });
+  return V.colorMats[pk];
 }
 var POSES = { closed: { deg: -9, tr: [0, 0, 0] }, open: { deg: 12, tr: [0, -6, -3] }, protr: { deg: -9, tr: [0, -9, 0] } };
 function applyPose(kind) {
