@@ -992,7 +992,7 @@ document.addEventListener("keydown", function (e) {
   else if (drawer.classList.contains("open")) { setNav(false); toggle.focus(); }
 });
 
-var BUILD = "97cf7afa0a", LANG = "ru", I18N = {}, AVAIL = JSON.parse(document.getElementById("d-langs").textContent);
+var BUILD = "cc18a5a00b", LANG = "ru", I18N = {}, AVAIL = JSON.parse(document.getElementById("d-langs").textContent);
 var langP = {};
 function loadLangData(l) {
   if (l === "ru") return Promise.resolve();
@@ -1174,10 +1174,19 @@ main.addEventListener("click", function (e) {
   window.__totop = up;
   window.addEventListener("scroll", function () { up.hidden = window.scrollY < 700; }, { passive: true });
 })();
+function renderAbout() {
+  var h = '<article class="aboutpage"><h1 class="title">' + esc(T("О проекте, источниках и лицензиях")) + '</h1>';
+  for (var i = 0; i < FOOT.length; i++) h += '<p class="vnote" style="font-size:15px">' + esc(T(FOOT[i])) + '</p>';
+  h += '<p class="vnote" style="font-size:15px">' + esc(T(ABOUT_Z)) + '</p>';
+  h += '<p><a href="#home">' + esc(T("На главную")) + '</a></p></article>';
+  main.innerHTML = h;
+  document.title = T("Атлас анатомии");
+}
+var ABOUT_Z = "Связки, мениски, периферические нервы, вены, органы шеи, ухо, лимфоузлы и другие структуры добавлены из проекта Z-Anatomy (авторы Gauthier Kervyn и Marcin Zielinski; z-anatomy.com), основанного на BodyParts3D (The Database Center for Life Science, CC BY-SA 2.1 Japan). Лицензия Z-Anatomy: CC BY-SA 4.0; эти модели распространяются на тех же условиях. Их положение подогнано под модель скелета атласа, поэтому возможны отклонения в несколько миллиметров.";
 function route() {
   var id = (location.hash || "").replace("#", "");
   var idx = byId(id);
-  if (idx === -1) renderHome(); else renderItem(idx);
+  if (id === "about") renderAbout(); else if (idx === -1) renderHome(); else renderItem(idx);
   markActive();
   setNav(false);
   document.body.classList.remove("fsview");
@@ -1922,9 +1931,7 @@ function applyStatic() {
   q.placeholder = T("Поиск: кость, орган, ткань…");
   q.setAttribute("aria-label", T("Поиск по атласу"));
   tree.setAttribute("aria-label", T("Разделы атласа"));
-  var f = "";
-  for (var i = 0; i < FOOT.length; i++) f += (i === 0 ? "" : (i === 1 ? "<br>" : " ")) + esc(T(FOOT[i]));
-  document.getElementById("foot").innerHTML = f;
+  document.getElementById("foot").innerHTML = '<a href="#about">' + esc(T("О проекте, источниках и лицензиях")) + '</a>';
   var sel = document.getElementById("lang");
   if (!sel.options.length) {
     for (var l = 0; l < LANGS.length; l++) { var o = document.createElement("option"); o.value = LANGS[l][0]; o.textContent = LANGS[l][1]; sel.appendChild(o); }
