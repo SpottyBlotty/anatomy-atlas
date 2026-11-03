@@ -2079,9 +2079,25 @@ function bindControls(c) {
   c.addEventListener("pointercancel", up);
   c.addEventListener("contextmenu", function (e) { e.preventDefault(); });
   c.addEventListener("wheel", function (e) {
-    if (!(e.ctrlKey || e.metaKey)) return;
+    /* колесо мыши / тачпад: приближение к точке под курсором */
     e.preventDefault();
-    V.radius = Math.max(40, Math.min(6000, V.radius * Math.exp(e.deltaY * 0.01)));
+    var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);
+    var f = Math.exp(Math.max(-300, Math.min(300, dy)) * 0.0015);
+    var nr = Math.max(40, Math.min(6000, V.radius * f));
+    f = nr / V.radius;
+    if (f === 1) return;
+    var r = c.getBoundingClientRect(), cam = V.camera;
+    var nx = ((e.clientX - r.left) / r.width) * 2 - 1, ny = -(((e.clientY - r.top) / r.height) * 2 - 1);
+    cam.updateMatrixWorld();
+    var ray = new THREE.Vector3(nx, ny, 0.5).unproject(cam).sub(cam.position).normalize();
+    var dir = new THREE.Vector3(); cam.getWorldDirection(dir);
+    var den = ray.dot(dir);
+    if (Math.abs(den) > 1e-4) {
+      var dist = V.target.clone().sub(cam.position).dot(dir) / den;
+      var pt = cam.position.clone().add(ray.multiplyScalar(dist));
+      V.target.addScaledVector(pt.sub(V.target), 1 - f);
+    }
+    V.radius = nr;
     requestRender();
   }, { passive: false });
   c.addEventListener("keydown", function (e) {
