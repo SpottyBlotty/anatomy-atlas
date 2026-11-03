@@ -1648,7 +1648,7 @@ var MODELS = {
   "discs": { hi: [["axial", "intervertebral disk"]], ctx: ["axial"], note: "" },
   "ribs": { hi: [["axial", "rib$|costal cartilage"]], ctx: ["axial"], note: "Выделены рёбра и рёберные хрящи 1–7." },
   "sternum": { hi: [["axial", "sternum|manubrium|xiphoid"]], ctx: ["axial"], note: "" },
-  "limbs": { hi: [["limbs", "."]], ctx: ["axial"], note: "" },
+  "limbs": { hi: [["limbs", "."]], ctx: ["axial"], solid: true, note: "Кости туловища (череп, позвоночник, рёбра, грудина) показаны серым для ориентации." },
   "shoulder-girdle": { hi: [["axial", "clavicle|scapula"]], ctx: ["axial", "limbs"], note: "" },
   "humerus": { hi: [["limbs", "humerus$"]], ctx: ["axial", "limbs"], note: "" },
   "forearm-hand": { hi: [["limbs", "radius$|ulna$|scaphoid|lunate|capitate|hamate|trapezi|triquetral|pisiform|metacarpal|phalanx of .*(finger|thumb)"]], ctx: ["axial", "limbs"], note: "" },
@@ -1836,8 +1836,34 @@ function ensureThree() {
   return LIBP;
 }
 var IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) < 900);
-/* облегчённый режим: слабые телефоны (мало памяти/ядер) или ?low=1 */
-var LOW = /[?&]low=1/.test(location.search) || (IS_MOBILE && ((navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4)));
+/* Уровень устройства (0 слабое, 1 среднее, 2 мощное) считается автоматически по памяти, ядрам и видеочипу;
+   дополнительно во время работы качество подстраивается по реальной частоте кадров. ?tier=0|1|2 — для проверки. */
+function gpuScore(n) {
+  n = String(n || "").toLowerCase();
+  if (!n) return 0;
+  if (/swiftshader|llvmpipe|software/.test(n)) return 0;
+  if (/immortalis|apple|nvidia|geforce|radeon|iris|uhd|arc\b/.test(n)) return 2;
+  var m = n.match(/adreno[^0-9]*(\d{3})/);
+  if (m) { var v = +m[1]; return v >= 640 ? 2 : v >= 618 ? 1 : v >= 530 ? 0 : -2; }
+  m = n.match(/mali-?g(\d+)/);
+  if (m) { var g = +m[1]; return g >= 78 ? 2 : g >= 57 ? 1 : g >= 51 ? 0 : -1; }
+  if (/mali-?t|mali-4|powervr|vivante|sgx/.test(n)) return -2;
+  return 0;
+}
+function computeTier(gpu) {
+  var fm = location.search.match(/[?&]tier=([012])/);
+  if (fm) return +fm[1];
+  var mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4, sc = 0;
+  sc += mem >= 6 ? 2 : mem >= 4 ? 1 : mem >= 3 ? 0 : -2;
+  sc += cores >= 8 ? 1 : cores >= 6 ? 0.5 : cores >= 4 ? 0 : -1;
+  sc += gpuScore(gpu);
+  if (!IS_MOBILE) sc += 3;
+  return sc <= 0 ? 0 : sc <= 2.5 ? 1 : 2;
+}
+var TIER = computeTier(""), LOW = TIER === 0;
+function gpuName(gl) {
+  try { var e = gl.getExtension("WEBGL_debug_renderer_info"); return e ? String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)) : ""; } catch (x) { return ""; }
+}
 function PM(o) {
   if (LOW) { delete o.shininess; return new THREE.MeshLambertMaterial(o); }
   return new THREE.MeshPhongMaterial(o);
@@ -1853,7 +1879,7 @@ function createViewer() {
   var host = document.createElement("div");
   /* пробуем несколько режимов: слабые Android-GPU часто не дают контекст со сглаживанием */
   var tries = [
-    { antialias: !IS_MOBILE, alpha: true, powerPreference: "default", precision: LOW ? "mediump" : "highp" },
+    { antialias: !IS_MOBILE || TIER >= 2, alpha: true, powerPreference: "default", precision: LOW ? "mediump" : "highp" },
     { antialias: false, alpha: true, powerPreference: "low-power" },
     { antialias: false, alpha: false, powerPreference: "low-power", precision: "mediump" }
   ];
@@ -1863,7 +1889,9 @@ function createViewer() {
     try { renderer = new THREE.WebGLRenderer(Object.assign({ canvas: canvas }, tries[ti])); } catch (e) { lastErr = e; renderer = null; }
   }
   if (!renderer) throw lastErr || new Error("webgl");
-  renderer.setPixelRatio(LOW ? 1 : Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 1.5 : 2));
+  TIER = computeTier(gpuName(renderer.getContext())); LOW = TIER === 0;
+  var PR = Math.min(window.devicePixelRatio || 1, TIER === 0 ? 1 : TIER === 1 ? 1.5 : 2);
+  renderer.setPixelRatio(PR);
   canvas.addEventListener("webglcontextlost", function (e) {
     e.preventDefault();
     var ov = document.getElementById("vover");
@@ -1884,9 +1912,10 @@ function createViewer() {
   scene.add(group);
   V = { canvas: canvas, renderer: renderer, scene: scene, camera: camera, group: group, light: dl,
     target: new THREE.Vector3(), theta: 0, phi: 1.45, radius: 1000, home: null, raf: 0, token: 0,
-    pick: [], ghost: [], showCtx: !LOW, ghostsBuilt: false, ghostTask: null, selected: null, ray: new THREE.Raycaster(), pointers: {}, moved: false };
+    pick: [], ghost: [], showCtx: true, ghostsBuilt: false, ghostTask: null, pr: PR, lastT: 0, dts: [], building: false, selected: null, ray: new THREE.Raycaster(), pointers: {}, moved: false };
   V.matHi = new PM({ color: 0x0a6c68, shininess: 25, side: THREE.DoubleSide });
   V.matGhost = new THREE.MeshLambertMaterial({ color: 0x889999, transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
+  V.matSolid = new PM({ color: 0xc3c8cd, shininess: 15, side: THREE.DoubleSide });
   V.matSel = new PM({ color: 0xe0883a, shininess: 25, side: THREE.DoubleSide });
   V.colorMats = {};
   recolor();
@@ -1908,6 +1937,23 @@ function requestRender() {
   if (!V || V.raf) return;
   V.raf = requestAnimationFrame(function () {
     V.raf = 0;
+    var nowT = performance.now();
+    if (V.lastT && nowT - V.lastT < 250 && !V.building) {
+      V.dts.push(nowT - V.lastT);
+      if (V.dts.length >= 24) {
+        var sum = 0; for (var di = 0; di < V.dts.length; di++) sum += V.dts[di];
+        V.dts = [];
+        if (sum / 24 > 50) { /* кадры медленные: сначала снижаем чёткость, потом прячем фон */
+          if (V.pr > 0.75) { V.pr = Math.max(0.75, V.pr - 0.25); V.renderer.setPixelRatio(V.pr); setTimeout(resizeViewer, 0); }
+          else if (V.showCtx && V.ghost.length) {
+            V.showCtx = false;
+            for (var gi2 = 0; gi2 < V.ghost.length; gi2++) V.ghost[gi2].visible = false;
+            var cb = document.querySelector('#vbar button[data-v="ctx"]'); if (cb) cb.setAttribute("aria-pressed", "false");
+          }
+        }
+      }
+    }
+    V.lastT = nowT;
     var c = V.camera, sp = Math.sin(V.phi);
     c.position.set(V.target.x + V.radius * sp * Math.sin(V.theta), V.target.y + V.radius * Math.cos(V.phi), V.target.z + V.radius * sp * Math.cos(V.theta));
     c.lookAt(V.target);
@@ -2198,7 +2244,7 @@ async function mountViewer(it) {
       var libP = ensureThree();
       var early = {};
       for (var ei = 0; ei < spec.hi.length; ei++) early[spec.hi[ei][0]] = 1;
-      for (ei = 0; ei < spec.ctx.length && !LOW; ei++) early[spec.ctx[ei]] = 1;
+      for (ei = 0; ei < spec.ctx.length && !LOW; ei++) early[spec.ctx[ei]] = 1; /* на слабых фон грузится после основной модели */
       for (var en in early) loadChunk(en);
       await libP;
       if (!document.getElementById("vhost")) return;
@@ -2251,7 +2297,7 @@ async function mountViewer(it) {
     for (i = 0; i < names.length; i++) {
       var isHi = false;
       for (j = 0; j < spec.hi.length; j++) if (spec.hi[j][0] === names[i]) isHi = true;
-      if (isHi || !LOW) chunkP[names[i]] = loadChunk(names[i]); /* на слабых фон грузится только по кнопке */
+      if (isHi || !LOW) chunkP[names[i]] = loadChunk(names[i]); /* на слабых фон грузится после основной модели */
     }
     var hiNames = [];
     for (i = 0; i < spec.hi.length; i++) if (hiNames.indexOf(spec.hi[i][0]) < 0) hiNames.push(spec.hi[i][0]);
@@ -2278,7 +2324,7 @@ async function mountViewer(it) {
       meshCache = {};
       for (var cn in chunkCache) if (!need[cn]) delete chunkCache[cn];
     }
-    V.pick = []; V.ghost = []; V.selected = null; V.ghostsBuilt = false; V.ghostTask = null;
+    V.pick = []; V.ghost = []; V.selected = null; V.ghostsBuilt = false; V.ghostTask = null; V.building = false;
     var mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9];
 
     var tSlice = performance.now();
@@ -2326,34 +2372,33 @@ async function mountViewer(it) {
        на слабых телефонах — только когда нажата кнопка «окружение» */
     var ghostTask = async function () {
       if (V.ghostsBuilt || token !== V.token) return;
-      V.ghostsBuilt = true;
+      V.ghostsBuilt = true; V.building = true;
       var gp = [], gi = 0, gk, gj;
       for (gk = 0; gk < spec.ctx.length; gk++) for (gj = 0; gj < man.parts.length; gj++) {
         var cp = man.parts[gj];
         if (cp.g === spec.ctx[gk] && !hiIds[cp.id]) gp.push(cp);
       }
       var ctxNeed = spec.ctx.filter(function (n, k, arr) { return arr.indexOf(n) === k; });
-      var lab2 = document.getElementById("vover");
-      if (LOW && lab2) { lab2.hidden = false; lab2.textContent = T("Загрузка модели…"); }
       await Promise.all(ctxNeed.map(function (n) { return (chunkP[n] || (chunkP[n] = loadChunk(n))).then(function (d) { dataBy[n] = d; }); }));
-      if (LOW && lab2) lab2.hidden = true;
       while (gi < gp.length) {
         if (token !== V.token) return;
         var t0 = performance.now();
         while (gi < gp.length && performance.now() - t0 < 14) {
           var cp2 = gp[gi++];
           var gm = meshCache[cp2.id] || (meshCache[cp2.id] = buildMesh(cp2, dataBy[cp2.g]));
-          gm.material = V.matGhost; gm.userData.mat = V.matGhost; gm.visible = V.showCtx;
+          var gmat = spec.solid ? V.matSolid : V.matGhost;
+          gm.material = gmat; gm.userData.mat = gmat; gm.visible = V.showCtx;
           V.group.add(gm); V.ghost.push(gm);
         }
         requestRender();
         await new Promise(function (r) { setTimeout(r, 0); });
       }
+      V.building = false; V.lastT = 0;
       if (spec.jaw) applyPose("closed");
       requestRender();
     };
     V.ghostTask = ghostTask;
-    if (!LOW) await ghostTask();
+    if (!LOW) await ghostTask(); else setTimeout(function () { ghostTask().catch(function () {}); }, 600);
   } catch (err) {
     over.hidden = false;
     over.textContent = T("Не удалось загрузить 3D-модель:") + " " + (err && err.message ? err.message : err);
